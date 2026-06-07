@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- 自动获取Player Settings里的Product Name -->
+    <title>PiTouShi</title>
+    
+    <!-- 引入像素风字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+      /* 全局基础设置 */
+      body {
+        background-color: #1a1a1a; /* 复古暗色背景 */
+        color: #e0e0e0;
+        font-family: 'Press Start 2P', monospace; /* 应用像素字体 */
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh; /* 确保内容垂直居中 */
+      }
+
+      /* 游戏名称区域（上方） */
+      .header {
+        margin-bottom: 35px; /* 稍微增加一点与游戏的间距 */
+      }
+
+      h1 {
+        font-size: 40px; /* 【修改这里】字体改大了（原为28px） */
+        color: #ffcc00; 
+        text-shadow: 5px 5px 0px #000; /* 阴影也稍微加厚一点配合大字体 */
+        margin: 0;
+        letter-spacing: 2px;
+      }
+
+      /* 游戏容器，不再锁定宽高，自适应游戏本身的大小 */
+      #game-container {
+        position: relative;
+        background-color: #000;
+        border: 4px solid #fff; 
+        box-shadow: 8px 8px 0px #000;
+        display: inline-block; /* 让容器根据内容自动调整尺寸 */
+      }
+
+      /* Canvas 不再强制锁定宽高，使用游戏本身的原始尺寸 */
+      canvas {
+        display: block;
+        /* 移除 width 和 height 的强制锁定，让canvas保持其原始像素尺寸 */
+        image-rendering: pixelated; 
+      }
+
+      /* 制作者介绍区域（下方） */
+      .footer {
+        margin-top: 45px; /* 稍微增加一点与游戏的间距 */
+        font-size: 16px; /* 【修改这里】字体改大了（原为12px） */
+        color: #aaaaaa;
+        line-height: 2.2; /* 增加一点行距让大字不拥挤 */
+        text-shadow: 2px 2px 0px #000;
+      }
+
+      .footer span.maker {
+        color: #44aaff; 
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 游戏上方：游戏名 -->
+    <div class="header">
+      <h1>PiTouShi</h1>
+    </div>
+
+    <!-- 游戏中间：不再锁定尺寸的容器，游戏将使用其本身的大小 -->
+    <div id="game-container">
+      <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+    </div>
+
+    <!-- 游戏下方：制作者介绍 -->
+    <div class="footer">
+      <div>DEVELOPED BY <span class="maker">Jiayi Xu, Xinyu Zhao</span></div>
+      <div>v1.0</div>
+    </div>
+
+    <!-- Unity WebGL 启动脚本 (兼容 Unity 2020+) -->
+    <script src="Build/Game4_PiTouShi.loader.js"></script>
+    <script>
+      var canvas = document.querySelector("#unity-canvas");
+      var buildUrl = "Build";
+      var config = {
+        dataUrl: buildUrl + "/Game4_PiTouShi.data.br",
+        frameworkUrl: buildUrl + "/Game4_PiTouShi.framework.js.br",
+        codeUrl: buildUrl + "/Game4_PiTouShi.wasm.br",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Jiayi Xu, Xinyu Zhao",
+        productName: "PiTouShi",
+        productVersion: "1.0",
+      };
+
+      var script = document.createElement("script");
+      script.src = config.frameworkUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+        }).then((unityInstance) => {
+          console.log("Game loaded successfully!");
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
