@@ -1,147 +1,846 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <!-- 自动获取Player Settings里的Product Name -->
-    <title>PiTouShi</title>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>PiTouShi - 疲惫石·温馨小窝</title>
+  
+  <!-- 像素风字体 -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <style>
+    /* 全局重置 & 复古氛围 */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0d0f14;
+      color: #e0e0e0;
+      font-family: 'Press Start 2P', monospace;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    /* 全屏模式下的 body 调整 */
+    body:-webkit-full-screen {
+      background-color: #000;
+      padding: 0;
+    }
+    body:fullscreen {
+      background-color: #000;
+      padding: 0;
+    }
+
+    /* 主内容区域 */
+    .main-layout {
+      max-width: 1400px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 全屏模式下主布局调整 */
+    :-webkit-full-screen .main-layout {
+      max-width: none;
+      width: 100%;
+      height: 100%;
+      justify-content: center;
+    }
+    :fullscreen .main-layout {
+      max-width: none;
+      width: 100%;
+      height: 100%;
+      justify-content: center;
+    }
+
+    /* 头部区域：游戏名称 + 双语切换按钮 */
+    .header {
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    /* 全屏模式下隐藏头部 */
+    :-webkit-full-screen .header {
+      display: none;
+    }
+    :fullscreen .header {
+      display: none;
+    }
+
+    h1 {
+      font-size: 40px;
+      color: #ffcc00;
+      text-shadow: 5px 5px 0px #000;
+      margin: 0;
+      letter-spacing: 2px;
+    }
+
+    /* 双语切换按钮组 */
+    .lang-switch {
+      display: flex;
+      gap: 10px;
+      background: #1e1e2c;
+      padding: 6px 12px;
+      border: 2px solid #ffcc33;
+      box-shadow: 4px 4px 0px #00000055;
+    }
+
+    .lang-btn {
+      background: #2a2a38;
+      border: none;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px;
+      padding: 8px 16px;
+      color: #cccccc;
+      cursor: pointer;
+      transition: all 0.1s;
+      letter-spacing: 1px;
+    }
+
+    .lang-btn.active {
+      background: #ffcc33;
+      color: #1e1e2c;
+      text-shadow: none;
+    }
+
+    .lang-btn:hover:not(.active) {
+      background: #3c3c50;
+      color: #ffdd77;
+    }
+
+    /* 游戏 + 说明板块 整体行布局 */
+    .game-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 28px;
+      align-items: flex-start;
+    }
+
+    /* 全屏模式下游戏行布局 */
+    :-webkit-full-screen .game-row {
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+    :fullscreen .game-row {
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+
+    /* 游戏容器包装器 */
+    .game-wrapper {
+      flex-shrink: 0;
+      position: relative;
+      display: inline-block;
+    }
+
+    /* 全屏模式下游戏包装器 */
+    :-webkit-full-screen .game-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    :fullscreen .game-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #game-container {
+      position: relative;
+      background-color: #000;
+      border: 4px solid #ffffff;
+      box-shadow: 12px 12px 0px rgba(0,0,0,0.5);
+      display: inline-block;
+      /* 自适应限制：最大宽度视口95%，最大高度视口70% */
+      max-width: 95vw;
+      max-height: 70vh;
+      overflow: auto;
+    }
+
+    /* 全屏模式下游戏容器 */
+    :-webkit-full-screen #game-container {
+      max-width: none;
+      max-height: none;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      box-shadow: none;
+      overflow: visible;
+    }
+    :fullscreen #game-container {
+      max-width: none;
+      max-height: none;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    canvas {
+      display: block;
+      /* 原始尺寸由width/height决定，父容器限制时等比缩放 */
+      max-width: 100%;
+      max-height: 600px;
+      width: auto;
+      height: auto;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: pixelated;
+    }
+
+    /* 全屏模式下 canvas 拉伸填满 */
+    :-webkit-full-screen canvas {
+      max-width: none;
+      max-height: none;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain;
+      background-color: #000;
+    }
+    :fullscreen canvas {
+      max-width: none;
+      max-height: none;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain;
+      background-color: #000;
+    }
+
+    /* 全屏按钮 - 位于游戏容器右上角 */
+    .fullscreen-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 100;
+      background: #1e1e2c;
+      border: 2px solid #ffcc33;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 8px 12px;
+      color: #ffcc33;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 3px 3px 0px #00000077;
+      backdrop-filter: blur(4px);
+    }
+
+    .fullscreen-btn:hover {
+      background: #ffcc33;
+      color: #1e1e2c;
+      transform: scale(1.02);
+    }
+
+    /* 全屏模式下全屏按钮可能变化位置 */
+    :-webkit-full-screen .fullscreen-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+    :fullscreen .fullscreen-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    /* 右侧说明板块 - 像素风卡片 */
+    .info-panel {
+      width: 380px;
+      background-color: #1e1e2c;
+      border: 4px solid #e0e0e0;
+      box-shadow: 8px 8px 0px #00000055;
+      font-family: 'Press Start 2P', monospace;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 全屏模式下右侧面板隐藏 */
+    :-webkit-full-screen .info-panel {
+      display: none;
+    }
+    :fullscreen .info-panel {
+      display: none;
+    }
+
+    /* 选项卡按钮区域 */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #ffcc33;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: #2a2a38;
+      border: none;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 12px 0;
+      color: #cccccc;
+      cursor: pointer;
+      transition: all 0.1s;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    .tab-btn:first-child {
+      border-right: 1px solid #3e3e52;
+    }
+
+    .tab-btn.active {
+      background: #ffcc33;
+      color: #1e1e2c;
+      box-shadow: inset 0 -2px 0 #ffffff;
+      text-shadow: none;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: #3c3c50;
+      color: #ffdd77;
+    }
+
+    /* 内容面板 */
+    .tab-content {
+      padding: 20px 16px;
+      min-height: 420px;
+      background: #181822;
+      font-size: 9px;
+      line-height: 1.8;
+      color: #d4d4dc;
+      text-align: left;
+    }
+
+    .content-pane {
+      display: none;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .content-pane.active-pane {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+
+    /* 游戏说明 (GAMEPLAY) 特殊样式 - 温馨小窝 */
+    .gameplay-section p {
+      margin: 12px 0;
+      font-size: 9px;
+      line-height: 1.7;
+    }
+
+    .gameplay-section .welcome-home {
+      background: #2a1e2c;
+      padding: 14px;
+      border-left: 4px solid #ffaa66;
+      margin: 12px 0;
+      font-style: normal;
+      border-radius: 2px;
+    }
+
+    .gameplay-section .highlight-key {
+      color: #ffaa66;
+      background: #2a2a3a;
+      display: inline-block;
+      padding: 2px 6px;
+      font-size: 8px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .gameplay-section h3 {
+      font-size: 11px;
+      margin: 16px 0 10px 0;
+      color: #ffcc66;
+      border-left: 4px solid #ffcc66;
+      padding-left: 8px;
+    }
+
+    hr {
+      border-color: #333;
+      margin: 14px 0;
+    }
+
+    .extra-note {
+      background: #20202c;
+      padding: 14px;
+      margin-top: 16px;
+      border: 1px solid #ffaa44;
+      font-size: 8px;
+      text-align: center;
+    }
     
-    <!-- 引入像素风字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    .credits-text {
+      text-align: center;
+    }
     
-    <style>
-      /* 全局基础设置 */
-      body {
-        background-color: #1a1a1a; /* 复古暗色背景 */
-        color: #e0e0e0;
-        font-family: 'Press Start 2P', monospace; /* 应用像素字体 */
-        text-align: center;
-        margin: 0;
-        padding: 20px;
-        display: flex;
+    .credits-text .big-name {
+      font-size: 10px;
+      color: #ffaa44;
+      margin: 16px 0 8px;
+      display: inline-block;
+      border-bottom: 2px dotted;
+    }
+    
+    .pixel-icon {
+      font-size: 18px;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    
+    .highlight {
+      color: #88ffaa;
+    }
+
+    .feature-list {
+      text-align: left;
+      margin: 12px 0;
+      padding-left: 12px;
+      font-size: 8px;
+    }
+
+    .feature-list li {
+      margin: 8px 0;
+      list-style-type: none;
+    }
+
+    .feature-list li::before {
+      content: "▸ ";
+      color: #ffaa66;
+    }
+
+    /* 底部制作组信息 */
+    .footer {
+      margin-top: 45px;
+      font-size: 11px;
+      color: #aaaaaa;
+      line-height: 2;
+      text-shadow: 2px 2px 0px #000;
+      border-top: 2px solid #2c2c2c;
+      padding-top: 28px;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* 全屏模式下底部隐藏 */
+    :-webkit-full-screen .footer {
+      display: none;
+    }
+    :fullscreen .footer {
+      display: none;
+    }
+    
+    .footer span.maker {
+      color: #44aaff;
+    }
+
+    /* 小屏幕适配 */
+    @media (max-width: 860px) {
+      .game-row {
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        box-sizing: border-box;
       }
-
-      /* 游戏名称区域（上方） */
-      .header {
-        margin-bottom: 35px;
+      .info-panel {
+        width: 90%;
+        max-width: 500px;
       }
-
+      .game-wrapper {
+        margin: 0 auto;
+      }
       h1 {
-        font-size: 40px;
-        color: #ffcc00; 
-        text-shadow: 5px 5px 0px #000;
-        margin: 0;
-        letter-spacing: 2px;
+        font-size: 28px;
       }
-
-      /* 游戏容器 - 自适应游戏原始尺寸，但添加最大尺寸限制 */
-      #game-container {
-        position: relative;
-        background-color: #000;
-        border: 4px solid #fff; 
-        box-shadow: 8px 8px 0px #000;
-        display: inline-block;
-        /* 最大尺寸限制：最大宽度为视口宽度的95%，最大高度为视口高度的70% */
-        max-width: 95vw;
-        max-height: 70vh;
-        /* 当容器被限制时，内部内容自动缩放适配 */
-        overflow: auto;
+      .header {
+        gap: 15px;
       }
+    }
 
-      /* Canvas - 保持原始像素尺寸，但当容器受限时允许等比缩放 */
-      canvas {
-        display: block;
-        /* 原始宽高由 width/height 属性决定 */
-        /* 当父容器有max限制时，canvas等比缩放，但不会拉伸变形 */
-        max-width: 100%;
-        max-height: 600px;
-        width: auto;
-        height: auto;
-        image-rendering: crisp-edges;
-        image-rendering: pixelated;
-        image-rendering: pixelated; /* 保持像素风格 */
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 24px;
+        text-shadow: 3px 3px 0px #000;
       }
-
-      /* 制作者介绍区域（下方） */
       .footer {
-        margin-top: 45px;
-        font-size: 16px;
-        color: #aaaaaa;
-        line-height: 2.2;
-        text-shadow: 2px 2px 0px #000;
+        font-size: 8px;
+        margin-top: 25px;
       }
+      .tab-btn {
+        font-size: 8px;
+        padding: 8px 0;
+      }
+    }
 
-      .footer span.maker {
-        color: #44aaff; 
-      }
+    /* 滚动条 */
+    ::-webkit-scrollbar {
+      width: 6px;
+      background: #222;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ffcc33;
+    }
+  </style>
+</head>
+<body>
+<div class="main-layout">
+  
+  <!-- 头部：游戏名称 + 双语切换按钮 -->
+  <div class="header">
+    <h1>PiTouShi</h1>
+    <div class="lang-switch">
+      <button class="lang-btn active" id="langCnBtn">中文</button>
+      <button class="lang-btn" id="langEnBtn">EN</button>
+    </div>
+  </div>
 
-      /* 可选：如果视口非常小，调整一些间距 */
-      @media (max-width: 640px) {
-        h1 {
-          font-size: 24px;
-          text-shadow: 3px 3px 0px #000;
-        }
-        .footer {
-          font-size: 10px;
-          margin-top: 25px;
-        }
-        .header {
-          margin-bottom: 20px;
-        }
-        body {
-          padding: 10px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- 游戏上方：游戏名 -->
-    <div class="header">
-      <h1>PiTouShi</h1>
+  <!-- 游戏区域 + 右侧说明板块 -->
+  <div class="game-row">
+    <!-- Unity游戏主体 -->
+    <div class="game-wrapper">
+      <div id="game-container">
+        <!-- 全屏按钮位于游戏容器右上角 -->
+        <button class="fullscreen-btn" id="fullscreenBtn">⛶ FULLSCREEN</button>
+        <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+      </div>
     </div>
 
-    <!-- 游戏中间：容器有最大尺寸限制，内部canvas等比缩放 -->
-    <div id="game-container">
-      <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+    <!-- 右侧说明板块: 切换 游戏说明(温馨小窝) / 额外说明(版本功能) -->
+    <div class="info-panel">
+      <div class="tabs">
+        <button class="tab-btn active" id="tabGameplayBtn">🏠 欢迎回家</button>
+        <button class="tab-btn" id="tabExtraBtn">📜 开发日志</button>
+      </div>
+      <div class="tab-content">
+        <!-- 游戏说明内容容器（互动+放松） -->
+        <div id="gameplayPane" class="content-pane active-pane gameplay-section"></div>
+        <!-- 额外说明内容容器（功能差异+感谢） -->
+        <div id="extraPane" class="content-pane credits-text"></div>
+      </div>
     </div>
+  </div>
 
-    <!-- 游戏下方：制作者介绍 -->
-    <div class="footer">
-      <div>DEVELOPED BY <span class="maker">Jiayi Xu, Xinyu Zhao</span></div>
-      <div>v1.0</div>
-    </div>
+  <!-- 底部制作组信息（双语动态） -->
+  <div class="footer" id="footer">
+    <div id="footerLine1">DEVELOPED BY <span class="maker">Jiayi Xu, Xinyu Zhao</span></div>
+    <div id="footerLine2">v1.0 · 疲惫时的柔软角落</div>
+  </div>
+</div>
 
-    <!-- Unity WebGL 启动脚本 (兼容 Unity 2020+) -->
-    <script src="Build/Game4_PiTouShi.loader.js"></script>
-    <script>
-      var canvas = document.querySelector("#unity-canvas");
-      var buildUrl = "Build";
-      var config = {
-        dataUrl: buildUrl + "/Game4_PiTouShi.data.unityweb",
-        frameworkUrl: buildUrl + "/Game4_PiTouShi.framework.js.unityweb",
-        codeUrl: buildUrl + "/Game4_PiTouShi.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "Jiayi Xu, Xinyu Zhao",
-        productName: "PiTouShi",
-        productVersion: "1.0",
-      };
+<!-- Unity WebGL 加载脚本 -->
+<script src="Build/Game4_PiTouShi.loader.js"></script>
+<script>
+  (function() {
+    // ==================== 全屏功能 ====================
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const gameContainer = document.getElementById('game-container');
+    
+    function toggleFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const elem = gameContainer;
+        const requestMethod = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.msRequestFullscreen;
+        if (requestMethod) {
+          requestMethod.call(elem);
+          fullscreenBtn.textContent = '✖ EXIT';
+        }
+      } else {
+        const exitMethod = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        if (exitMethod) {
+          exitMethod.call(document);
+          fullscreenBtn.textContent = '⛶ FULLSCREEN';
+        }
+      }
+    }
+    
+    function onFullscreenChange() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        fullscreenBtn.textContent = '⛶ FULLSCREEN';
+      } else {
+        fullscreenBtn.textContent = '✖ EXIT';
+      }
+    }
+    
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    
+    // ==================== 双语文本库 (疲惫石·温馨互动) ====================
+    const texts = {
+      zh: {
+        gameplay: {
+          welcome: "哈，你回来了！在温馨的小家里尽情地互动放松一下吧，坐下饱餐一顿，冲个热水澡，摸摸朝你走来的爱宠，再美美睡上一觉！",
+          controlsTitle: "🎮 互动方式",
+          controls: "• 按 <span class='highlight-key'>E 键</span> 呼出附近所有可互动选项\n• 鼠标点击对应按钮进行互动（吃饭/洗澡/抚摸宠物/睡觉等）\n• 每个动作都会带来不同的温馨反馈✨",
+          tipNote: "💡 小提示：宠物会主动走向你，记得多摸摸它～"
+        },
+        extra: {
+          eventTitle: "PiTouShi · 多平台差异说明",
+          description: "本游戏专为Windows/Mac平台设计，为您带来最完整的互动体验。",
+          webglNote: "⚠️ WebGL版本目前尚不支持以下特色功能（Windows/Mac版本专属）：",
+          unsupportedFeatures: [
+            "联机合作 / 在线小窝功能",
+            "透明背景窗口特效",
+            "使用鼠标中键拖动游戏窗口"
+          ],
+          thanks: "感谢您的游玩与理解！希望您喜欢。",
+          support: "开发：Jiayi Xu, Xinyu Zhao"
+        },
+        footer: {
+          line1: "DEVELOPED BY ",
+          line2: "v1.0 · 疲惫时的柔软角落"
+        },
+        tabGameplay: "🏠 欢迎回家",
+        tabExtra: "📜 开发日志"
+      },
+      en: {
+        gameplay: {
+          welcome: "Ah, you're back! Relax and interact freely in this cozy little home—sit down for a hearty meal, take a warm shower, pet your loving companion as they walk toward you, then drift off to a sweet sleep!",
+          controlsTitle: "🎮 Interaction",
+          controls: "• Press <span class='highlight-key'>E</span> to bring up all nearby interactive options\n• Click on the corresponding buttons to interact (eat / shower / pet / sleep)\n• Every action brings a warm, unique feedback✨",
+          tipNote: "💡 Tip: Your pet will walk toward you on its own—don't forget to pet it!"
+        },
+        extra: {
+          eventTitle: "PiTouShi · Platform Differences",
+          description: "This game is designed specifically for Windows/Mac to deliver the most complete interactive experience.",
+          webglNote: "⚠️ The WebGL version currently does NOT support the following features (exclusive to Windows/Mac builds):",
+          unsupportedFeatures: [
+            "Co-op / Online functionality",
+            "Transparent window background effects",
+            "Dragging the game window with the middle mouse button"
+          ],
+          thanks: "Thank you for playing and for your understanding!",
+          support: "Dev: Jiayi Xu, Xinyu Zhao"
+        },
+        footer: {
+          line1: "DEVELOPED BY ",
+          line2: "v1.0 · A soft corner when tired"
+        },
+        tabGameplay: "🏠 Welcome Back",
+        tabExtra: "📜 Dev Notes"
+      }
+    };
 
+    let currentLang = 'zh';
+    let currentTab = 'gameplay';
+
+    const gameplayPane = document.getElementById('gameplayPane');
+    const extraPane = document.getElementById('extraPane');
+    const tabGameplayBtn = document.getElementById('tabGameplayBtn');
+    const tabExtraBtn = document.getElementById('tabExtraBtn');
+    const langCnBtn = document.getElementById('langCnBtn');
+    const langEnBtn = document.getElementById('langEnBtn');
+    const footerLine1 = document.getElementById('footerLine1');
+    const footerLine2 = document.getElementById('footerLine2');
+
+    // 渲染游戏说明 (温馨小窝剧情+操作)
+    function renderGameplay(lang) {
+      const t = texts[lang].gameplay;
+      const controlsFormatted = t.controls.replace(/\n/g, '<br>');
+      
+      const html = `
+        <div class="welcome-home">
+          🏡 ${t.welcome}
+        </div>
+        <h3>${t.controlsTitle}</h3>
+        <p>${controlsFormatted}</p>
+        <hr>
+        <p style="font-size:8px; color:#bbb; margin-top:8px;">🐾 ${t.tipNote}</p>
+      `;
+      gameplayPane.innerHTML = html;
+    }
+
+    // 渲染额外说明 (平台功能差异 + 感谢)
+    function renderExtra(lang) {
+      const t = texts[lang].extra;
+      // 构建不支持功能列表
+      let listHtml = '';
+      if (t.unsupportedFeatures && t.unsupportedFeatures.length) {
+        listHtml = '<ul class="feature-list" style="text-align:left; margin-top:8px;">';
+        t.unsupportedFeatures.forEach(feature => {
+          listHtml += `<li>✖ ${feature}</li>`;
+        });
+        listHtml += '</ul>';
+      }
+      
+      const html = `
+        <div class="pixel-icon"></div>
+        <div class="big-name">${t.eventTitle}</div>
+        <p>${t.description}</p>
+        <div class="extra-note">
+          ${t.webglNote}
+          ${listHtml}
+        </div>
+        <p style="margin-top: 18px;">❤️ ${t.thanks}</p>
+        <p style="margin-top: 10px; font-size: 8px;">👥 ${t.support}</p>
+      `;
+      extraPane.innerHTML = html;
+    }
+
+    function renderFooter(lang) {
+      const t = texts[lang].footer;
+      footerLine1.innerHTML = `${t.line1}<span class="maker">Jiayi Xu, Xinyu Zhao</span>`;
+      footerLine2.innerHTML = t.line2;
+    }
+
+    function updateTabButtons(lang) {
+      const t = texts[lang];
+      tabGameplayBtn.innerHTML = t.tabGameplay;
+      tabExtraBtn.innerHTML = t.tabExtra;
+    }
+
+    function refreshUI() {
+      renderGameplay(currentLang);
+      renderExtra(currentLang);
+      renderFooter(currentLang);
+      updateTabButtons(currentLang);
+      
+      if (currentTab === 'gameplay') {
+        gameplayPane.classList.add('active-pane');
+        extraPane.classList.remove('active-pane');
+        tabGameplayBtn.classList.add('active');
+        tabExtraBtn.classList.remove('active');
+      } else {
+        extraPane.classList.add('active-pane');
+        gameplayPane.classList.remove('active-pane');
+        tabExtraBtn.classList.add('active');
+        tabGameplayBtn.classList.remove('active');
+      }
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      if (lang === 'zh') {
+        langCnBtn.classList.add('active');
+        langEnBtn.classList.remove('active');
+      } else {
+        langEnBtn.classList.add('active');
+        langCnBtn.classList.remove('active');
+      }
+      refreshUI();
+    }
+
+    function setTab(tab) {
+      currentTab = tab;
+      if (tab === 'gameplay') {
+        gameplayPane.classList.add('active-pane');
+        extraPane.classList.remove('active-pane');
+        tabGameplayBtn.classList.add('active');
+        tabExtraBtn.classList.remove('active');
+      } else {
+        extraPane.classList.add('active-pane');
+        gameplayPane.classList.remove('active-pane');
+        tabExtraBtn.classList.add('active');
+        tabGameplayBtn.classList.remove('active');
+      }
+    }
+
+    langCnBtn.addEventListener('click', () => setLanguage('zh'));
+    langEnBtn.addEventListener('click', () => setLanguage('en'));
+    tabGameplayBtn.addEventListener('click', () => setTab('gameplay'));
+    tabExtraBtn.addEventListener('click', () => setTab('extra'));
+
+    // 初始化 (中文，游戏说明页)
+    renderGameplay('zh');
+    renderExtra('zh');
+    renderFooter('zh');
+    updateTabButtons('zh');
+    gameplayPane.classList.add('active-pane');
+    extraPane.classList.remove('active-pane');
+    tabGameplayBtn.classList.add('active');
+    tabExtraBtn.classList.remove('active');
+    currentLang = 'zh';
+    currentTab = 'gameplay';
+
+    // ==================== Unity 加载 (适配Game4_PiTouShi + 自适应尺寸支持) ====================
+    var canvas = document.querySelector("#unity-canvas");
+    var buildUrl = "Build";
+    var config = {
+      dataUrl: buildUrl + "/Game4_PiTouShi.data.unityweb",
+      frameworkUrl: buildUrl + "/Game4_PiTouShi.framework.js.unityweb",
+      codeUrl: buildUrl + "/Game4_PiTouShi.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "Jiayi Xu, Xinyu Zhao",
+      productName: "PiTouShi",
+      productVersion: "1.0",
+    };
+
+    // 避免重复加载loader
+    if (!window._unityLoaderAttachedGame4) {
+      window._unityLoaderAttachedGame4 = true;
       var script = document.createElement("script");
       script.src = config.frameworkUrl;
       script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-        }).then((unityInstance) => {
-          console.log("Game loaded successfully!");
-        }).catch((message) => {
-          alert(message);
-        });
+        if (typeof createUnityInstance !== 'undefined') {
+          createUnityInstance(canvas, config, (progress) => {}).then((unityInstance) => {
+            console.log("✅ PiTouShi 游戏加载成功！温馨小窝已为你敞开。");
+            window.unityGamePiTouShi = unityInstance;
+            try {
+              if (unityInstance.SendMessage) {
+                unityInstance.SendMessage('GameManager', 'OnWebReady', 'welcome_home');
+              }
+            } catch(e) { /* 忽略 */ }
+          }).catch((message) => {
+            console.error("Unity加载错误: ", message);
+            const errDiv = document.createElement('div');
+            errDiv.style.position = 'absolute';
+            errDiv.style.bottom = '8px';
+            errDiv.style.left = '8px';
+            errDiv.style.background = '#aa3333cc';
+            errDiv.style.padding = '5px';
+            errDiv.style.fontSize = '7px';
+            errDiv.style.fontFamily = 'monospace';
+            errDiv.innerText = '⚠️ Unity WebGL加载失败，请检查Build文件夹及文件完整性。';
+            canvas.parentNode.appendChild(errDiv);
+          });
+        } else {
+          console.warn("createUnityInstance 未就绪，等待轮询加载");
+          let checkInterval = setInterval(() => {
+            if (typeof createUnityInstance !== 'undefined') {
+              clearInterval(checkInterval);
+              createUnityInstance(canvas, config, (progress) => {}).then((unityInstance) => {
+                window.unityGamePiTouShi = unityInstance;
+                console.log("✅ Unity延迟加载成功 (PiTouShi)");
+              }).catch(console.error);
+            }
+          }, 200);
+          setTimeout(() => clearInterval(checkInterval), 10000);
+        }
       };
       document.body.appendChild(script);
-    </script>
-  </body>
+    } else {
+      if (typeof createUnityInstance !== 'undefined' && !window.unityGamePiTouShi) {
+        createUnityInstance(canvas, config, (progress) => {}).then((unityInstance) => {
+          window.unityGamePiTouShi = unityInstance;
+          console.log("✅ Unity重新初始化成功 (PiTouShi)");
+        }).catch(console.error);
+      }
+    }
+  })();
+</script>
+</body>
 </html>
